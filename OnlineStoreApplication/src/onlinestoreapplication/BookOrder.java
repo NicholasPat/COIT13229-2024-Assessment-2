@@ -8,15 +8,14 @@ import java.io.Serializable;
 public class BookOrder implements Task, Serializable {
     private int quantity ; 
     private double unitPrice ; 
-    private double tax ; 
-    private double totalBill ; 
+    private double tax = 1.10 ; 
+    private double totalBill ;  
 
-    public BookOrder(int quantity, double unitPrice, double totalBill) {
+    public BookOrder(int quantity, double unitPrice) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
-        //Tax is always fixed to 10%, or in decimal, 0.10 
-        this.tax = 0.10 ; 
-        this.totalBill = totalBill;
+        //Tax is always fixed to 10%, or in decimal, 1.10 (1 whole unit, plus .10 more) 
+        this.tax = 1.10 ; 
     }
 
     public BookOrder() {
@@ -60,13 +59,13 @@ public class BookOrder implements Task, Serializable {
     }
 
     @Override
-    public void executeTask(int quantity, double cost) {
-        System.out.println("Not supported yet") ; 
+    public void executeTask() {
+        totalBill = quantity * unitPrice * tax ; 
     }
 
     @Override
     public double getResult() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return totalBill ; 
     }
     
     
