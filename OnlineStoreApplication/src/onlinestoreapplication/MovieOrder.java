@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * @author linke
  */
-public class MovieOrder implements Serializable {
+public class MovieOrder implements Task, Serializable {
     private int quantity ; 
     private double unitPrice ; 
     private double tax ; 
@@ -58,6 +58,16 @@ public class MovieOrder implements Serializable {
     @Override
     public String toString() {
         return "MovieOrder{" + "quantity=" + quantity + ", unitPrice=" + unitPrice + ", tax=" + tax + ", totalBill=" + totalBill + '}';
+    }
+
+    @Override
+    public void executeTask(int quantity, double cost) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public double getResult() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
     
