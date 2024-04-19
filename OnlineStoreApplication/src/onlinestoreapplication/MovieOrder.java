@@ -1,9 +1,11 @@
 package onlinestoreapplication;
 
+import java.io.Serializable;
+
 /**
  * @author linke
  */
-public class MovieOrder {
+public class MovieOrder implements Serializable {
     private int quantity ; 
     private double unitPrice ; 
     private double tax ; 
