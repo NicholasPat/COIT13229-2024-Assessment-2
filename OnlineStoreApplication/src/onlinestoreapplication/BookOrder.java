@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * @author linke
  */
-class BookOrder implements Task, Serializable {
+public class BookOrder implements Task, Serializable {
     private int quantity ; 
     private double unitPrice ; 
     private double tax ; 
