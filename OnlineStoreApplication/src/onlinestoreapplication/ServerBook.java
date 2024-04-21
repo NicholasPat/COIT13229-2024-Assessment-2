@@ -12,7 +12,6 @@ import java.net.Socket;
  */
 public class ServerBook {
     public static void main(String args[]) { 
-        System.out.println("ServerBook.java startup") ; 
         try { 
             int serverPort = 6455 ; 
             ServerSocket listenSocket = new ServerSocket(serverPort) ; 
