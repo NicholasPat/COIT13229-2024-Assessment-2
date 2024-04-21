@@ -16,6 +16,7 @@ public class MovieOrder implements Task, Serializable {
         this.unitPrice = unitPrice;
         //Tax always fixed at 30%, or 1.30 in decimal 
         this.tax = 1.30; 
+        this.totalBill = 0 ; 
     }
 
     public MovieOrder() {

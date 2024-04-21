@@ -4,19 +4,22 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author linke
  */
 public class OrderClient {
-    private static String hostName = "localHost" ; 
+    private static String hostName = "localhost" ; 
     //Server Port will be the same for OrderClient to ServerCoordinator. ServerCoordinator to the other two servers will be different for both 
     private static int serverPort = 6433; 
     
-    public static void run() { 
+    public static void main(String args[]) { 
         int currentMenu = 1 ; 
         
         while (currentMenu >=1 && currentMenu <=3) { 
@@ -44,11 +47,11 @@ public class OrderClient {
         
         System.out.println("""
                            PLEZSE PLACE YOUR ORDER BY SELECTING A NUMBER
-                           __________________________
+                           ____________________________________________________
                            1. Purchase Book(s)
                            2. Purchase movie(s)
                            3. Exit
-                           __________________________""") ; 
+                           ____________________________________________________""") ; 
         
         while (state) { 
             //Query what menu is wanted then pass the entry to error handling 
@@ -90,7 +93,6 @@ public class OrderClient {
             
             if (!state) { 
                 quantity = Integer.parseInt(intermediateQuantity) ; 
-                System.out.println("TRACE: Quantity int value is: " + quantity) ; 
             }
         }
         
@@ -105,7 +107,6 @@ public class OrderClient {
             
             if (!state) { 
                 price = Double.parseDouble(intermediatePrice) ; 
-                System.out.println("TRACE: Price double value is: " + price) ; 
             }
         }
         
@@ -120,24 +121,59 @@ public class OrderClient {
         
         try { 
             s = new Socket(hostName, serverPort) ; 
+            
+            //Create a DataOutputStream and then write the message to the server. This will be tagged with identifier String to allow server to know where to send thing 
+            DataOutputStream out = new DataOutputStream(s.getOutputStream()) ;
+            message = quantity + "::" + price + "::" + identifier ;
+            out.writeUTF(message) ;
+            
+            //The in3 and in6 Object streams have to be different as they 
             DataInputStream in = new DataInputStream(s.getInputStream()) ; 
-            DataOutputStream out = new DataOutputStream(s.getOutputStream()) ; 
+            ObjectInputStream in3 = new ObjectInputStream(s.getInputStream()) ; 
+            String objectType = in.readUTF() ; 
             
-            //Write the message to the server. This will be tagged with identifier String to allow server to know where to send thing 
-            message = quantity + "::" + price + "::" + identifier ; 
+            System.out.println("Received computed object from server!") ; 
+            String tag = null; 
+            int fQuantity = 0 ; 
+            double fPrice = 0 ; 
+            double fTax = 0 ; 
+            double fTotalBill = 0 ; 
             
-            out.writeUTF(message) ; 
-            String response = in.readUTF() ; 
+            if(objectType.equals("book")) { 
+                BookOrder book = (BookOrder)in3.readObject() ;
+                fQuantity = book.getQuantity() ; 
+                fPrice = book.getUnitPrice() ; 
+                fTax = book.getTax() ; 
+                fTotalBill = book.getTotalBill() ; 
+                tag = "Books" ; 
+            } else if (objectType.equals("movie")) { 
+                MovieOrder movie = (MovieOrder)in3.readObject() ; 
+                fQuantity = movie.getQuantity() ; 
+                fPrice = movie.getUnitPrice() ; 
+                fTax = movie.getTax() ; 
+                fTotalBill = movie.getTotalBill() ; 
+                tag = "Movies" ; 
+            } else { 
+                System.out.println("Logic error, exiting program") ; 
+                System.exit(0) ; 
+            } 
+            
+            //Format better 
+            System.out.println("Number of " + tag + ": " + fQuantity + "      Price: " + fPrice + 
+                    "       Tax: " + fTax + "      Bill total for the books: " + fTotalBill) ; 
+            System.out.println("____________________________________________________\n") ; 
             
         }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
         }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch (IOException e){System.out.println("readline:"+e.getMessage());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(OrderClient.class.getName()).log(Level.SEVERE, null, ex);
         }finally {if(s!=null) try {s.close();}catch (IOException e){System.out.println("close:"+e.getMessage());}}
     }
     
+    
     private static boolean checkValue(String value, int i) { 
         int current = 0 ; 
-        double doubleCurrent = 0 ; 
         
         //If initial menu check OR quantity check then do this check 
         if (i == 1 || i == 2) { 
@@ -162,7 +198,7 @@ public class OrderClient {
         //Checking if price can be doubled 
         if (i == 3) { 
             try { 
-                doubleCurrent = Double.parseDouble(value) ; 
+                double doubleCurrent = Double.parseDouble(value) ; 
             } catch (NumberFormatException e) { 
                 System.out.println("Invalid entry, please input as a number (also without '$'") ; 
                 return true ; 

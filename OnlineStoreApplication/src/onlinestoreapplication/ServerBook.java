@@ -13,6 +13,7 @@ import java.net.Socket;
 public class ServerBook {
     public static void main(String args[]) { 
         try { 
+            System.out.println("ServerBook start") ; 
             int serverPort = 6455 ; 
             ServerSocket listenSocket = new ServerSocket(serverPort) ; 
             int i = 1 ; 
@@ -27,8 +28,8 @@ public class ServerBook {
 }
 
 class BookConnection extends Thread { 
-    ObjectInputStream in1 ; 
-    ObjectOutputStream out1 ; 
+    ObjectInputStream in10 ; 
+    ObjectOutputStream out10 ; 
     Socket clientSocket ; 
     int numberofTimes ; 
     
@@ -36,15 +37,15 @@ class BookConnection extends Thread {
         try { 
             numberofTimes = tn ; 
             clientSocket = aClientSocket ; 
-            in1 = new ObjectInputStream(clientSocket.getInputStream()) ; //Data for the initial data sent to here 
-            out1 = new ObjectOutputStream(clientSocket.getOutputStream()) ; //Object for sending back to the coordinator 
+            in10 = new ObjectInputStream(clientSocket.getInputStream()) ; //Data for the initial data sent to here 
+            out10 = new ObjectOutputStream(clientSocket.getOutputStream()) ; //Object for sending back to the coordinator 
             this.start() ; 
         }catch (IOException ex){ex.printStackTrace();}
     }
     
     public void run() { 
         try {
-            BookOrder book = (BookOrder)in1.readObject() ; 
+            BookOrder book = (BookOrder)in10.readObject() ; 
             System.out.println("ServerBook received Book object number: " + numberofTimes) ; 
             
             //Using the executeTask() method which will then be set for the object. Meaning it can be sent back to the ServerCoordinator 
@@ -53,7 +54,7 @@ class BookConnection extends Thread {
             System.out.println("Computed the total bill for the current Book Order. Sending back to the client\n") ; 
             
             //Sending book object back to the ServerCoordinator 
-            out1.writeObject(book) ;
+            out10.writeObject(book) ;
         }catch(EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch(IOException e) {System.out.println("readline:"+e.getMessage());
         }catch(ClassNotFoundException ex){ex.printStackTrace(); 

@@ -11,52 +11,59 @@ import java.net.Socket;
  * @author linke
  */
 public class ServerMovie {
-    public static void main(String args[]) { 
+    public static void main(String[] args) { 
+        int serverPort = 6488 ; 
+        int i = 0 ; 
+        
         try { 
-            int serverPort = 6444 ; 
             ServerSocket listenSocket = new ServerSocket(serverPort) ; 
-            int i = 1 ; 
+            System.out.println("ServerMovie started") ; 
             while (true) { 
                 Socket clientSocket = listenSocket.accept() ; 
-                MovieConnection connection = new MovieConnection(clientSocket, i++) ; 
+                Connection c = new Connection(clientSocket, i++) ; 
+                System.out.println("Connection created") ; 
+                c.start() ; 
+                c.run() ; 
+                System.out.println("Connection started" + c.toString()) ; 
             }
-        } catch (IOException e) {
-            System.out.println("Listen :" + e.getMessage());
-        }
+        } catch (IOException e) {System.out.println("Listen :" + e.getMessage());}
     }
 }
 
-class MovieConnection extends Thread { 
-    ObjectInputStream in6 ; 
-    ObjectOutputStream out6 ; 
+class Connection extends Thread { 
+    ObjectInputStream in21 ; 
+    ObjectOutputStream out20 ; 
     Socket clientSocket ; 
     int numberofTimes ; 
     
-    public MovieConnection(Socket aClientSocket, int tn) { 
+    public Connection(Socket aClientSocket, int tn) { 
+        numberofTimes = tn ; 
         try { 
-            numberofTimes = tn ; 
             clientSocket = aClientSocket ; 
-            in6 = new ObjectInputStream(clientSocket.getInputStream()) ; //Data for the initial data sent to here 
-            out6 = new ObjectOutputStream(clientSocket.getOutputStream()) ; //Object for sending back to the coordinator 
-            this.start() ; 
-        }catch (IOException ex){ex.printStackTrace();}
-    }
+            out20 = new ObjectOutputStream(clientSocket.getOutputStream()) ; 
+            in21 = new ObjectInputStream(clientSocket.getInputStream()) ; 
+            System.out.println("All oonstructor variables made" + clientSocket.toString()) ; 
+        }catch(IOException e){System.out.println("Connection: "+e.getMessage());}}
     
+    @Override
     public void run() { 
         try {
-            BookOrder book = (BookOrder)in6.readObject() ; 
             System.out.println("ServerBook received Book object number: " + numberofTimes) ; 
-            
-            //Using the executeTask() method which will then be set for the object. Meaning it can be sent back to the ServerCoordinator 
-            //then back to the client to be rewritten 
-            book.executeTask();
+            MovieOrder movie = (MovieOrder)in21.readObject() ; 
+            movie.executeTask(); 
             System.out.println("Computed the total bill for the current Book Order. Sending back to the client\n") ; 
-            
-            //Sending book object back to the ServerCoordinator 
-            out6.writeObject(book) ;
+            out20.writeObject(movie) ;
         }catch(EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch(IOException e) {System.out.println("readline:"+e.getMessage());
-        }catch(ClassNotFoundException ex){ex.printStackTrace(); 
+        }catch(ClassNotFoundException ex){System.out.println("Class not found: " + ex.getMessage()); 
         }finally{try{clientSocket.close();}catch(IOException e){/*close failed*/}}
     }
 }
+
+
+//System.out.println("TRACE: ") ; 
+
+//Using the executeTask() method which will then be set for the object. Meaning it can be sent back to the ServerCoordinator 
+//then back to the client to be rewritten 
+
+//Sending book object back to the ServerCoordinator 
