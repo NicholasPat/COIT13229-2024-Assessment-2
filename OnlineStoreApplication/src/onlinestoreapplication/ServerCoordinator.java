@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * @author linke
  */
 public class ServerCoordinator {
-    public static void main(String args[]) { 
+    public static void main(String[] args) { 
         try { 
             System.out.println("ServerCoordinator start") ; 
             int serverPort = 6433 ; 
@@ -23,7 +23,7 @@ public class ServerCoordinator {
             int i = 1 ; 
             while (true) { 
                 Socket clientSocket = listenSocket.accept() ; 
-                Connection c = new Connection(clientSocket, i++) ; 
+                Connection1 c = new Connection1(clientSocket, i++) ; 
                 c.start() ; 
             } 
         } catch (IOException e) {
@@ -32,15 +32,15 @@ public class ServerCoordinator {
     }
 }
 
-class Connection extends Thread { 
+class Connection1 extends Thread { 
     DataInputStream in ; 
     DataOutputStream out ; 
-    ObjectOutputStream out3 ; //Used to send back the final object (Book) 
+    ObjectOutputStream out3 ; 
     Socket clientSocket ; 
     int threadCount ; 
     String hostName = "localhost" ; 
     
-    public Connection(Socket aClientSocket, int number) { 
+    public Connection1(Socket aClientSocket, int number) { 
         try { 
             threadCount = number ; 
             clientSocket = aClientSocket ; 
@@ -85,26 +85,30 @@ class Connection extends Thread {
                     
                     System.out.println("Sending to server for Movie...") ; 
                     out20.writeObject(movie) ; 
-                    System.out.println("Sent to server, now waiting for object to be sent back") ;
+                    
+                    //Reassign the new movie object based off the in object 
                     movie = (MovieOrder)in20.readObject() ; 
                     
                     System.out.println("Sending order back to the original client") ;
-                    out.writeUTF("movie") ;
-                    out3.writeObject(movie) ;
+                    out.writeUTF("movie") ; //Also write data for movie 
+                    out3.writeObject(movie) ; 
                 }
                 case "book" -> {
-                    BookOrder bookInitial = new BookOrder(quantity, price) ;
+                    BookOrder book = new BookOrder(quantity, price) ;
                     //Socket and in/out for the server
                     s = new Socket(hostName, 6455) ;
-                    in20 = new ObjectInputStream(s.getInputStream()) ;
+                    
                     out20 = new ObjectOutputStream(s.getOutputStream()) ;
+                    in20 = new ObjectInputStream(s.getInputStream()) ; 
+                    
                     System.out.println("Sending to server for Book...") ;
-                    out20.writeObject(bookInitial) ;
-                    BookOrder book1 = (BookOrder)in20.readObject() ;
+                    out20.writeObject(book) ;
+                    book = (BookOrder)in20.readObject() ;
+                    
                     System.out.println("Return order back to the client") ;
                     //Send to client + the tag for what it is
-                    out.writeUTF("book") ;
-                    out3.writeObject(book1) ;
+                    out.writeUTF("book") ; //Also write data for book
+                    out3.writeObject(book) ; 
                 }
                 default -> {
                     System.out.println("Error in logic, exiting program") ;
@@ -117,7 +121,7 @@ class Connection extends Thread {
         } catch(EOFException e){System.out.println("EOF:"+e.getMessage());
         } catch(IOException e) {System.out.println("readline:"+e.getMessage());
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Connection.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Connection1.class.getName()).log(Level.SEVERE, null, ex);
         }finally{ try {clientSocket.close();}catch (IOException e){/*close failed*/}}
     }
 }
