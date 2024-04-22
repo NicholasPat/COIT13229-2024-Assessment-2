@@ -118,6 +118,11 @@ public class OrderClient {
     private static void serverConnection(String identifier, int quantity, double price) { 
         Socket s = null ; 
         String message ; 
+        String tag = null; 
+        int fQuantity = 0 ; 
+        double fPrice = 0 ; 
+        double fTax = 0 ; 
+        double fTotalBill = 0 ; 
         
         try { 
             s = new Socket(hostName, serverPort) ; 
@@ -133,12 +138,6 @@ public class OrderClient {
             String objectType = in.readUTF() ; 
             
             System.out.println("Received computed object from server!") ; 
-            String tag = null; 
-            int fQuantity = 0 ; 
-            double fPrice = 0 ; 
-            double fTax = 0 ; 
-            double fTotalBill = 0 ; 
-            
             if(objectType.equals("book")) { 
                 BookOrder book = (BookOrder)in3.readObject() ;
                 fQuantity = book.getQuantity() ; 
@@ -166,8 +165,7 @@ public class OrderClient {
         }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
         }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch (IOException e){System.out.println("readline:"+e.getMessage());
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(OrderClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {Logger.getLogger(OrderClient.class.getName()).log(Level.SEVERE, null, ex);
         }finally {if(s!=null) try {s.close();}catch (IOException e){System.out.println("close:"+e.getMessage());}}
     }
     
