@@ -27,7 +27,7 @@ public class ServerBook {
      *                      runs into some sort of error 
      */
     public static void main(String[] args) { 
-        //Declarations
+        /*Declarations for server port, and the number of threads made this session*/
         int i = 1 ; 
         int serverPort = 6455 ; 
         
@@ -39,11 +39,9 @@ public class ServerBook {
             while (true) { 
                 Socket clientSocket = listenSocket.accept() ; 
                 Connection3 c = new Connection3(clientSocket, i++) ; 
-                c.start() ; 
+                c.start() ; //Not starting thread in constructor
             }
-        } catch (IOException e) {
-            System.out.println("Listen :" + e.getMessage());
-        }
+        } catch (IOException e){System.out.println("Listen :" + e.getMessage());}
     }
 }
 
@@ -58,11 +56,10 @@ public class ServerBook {
  * @see Thread 
  */
 class Connection3 extends Thread { 
-    //Initialise necessary variables 
-    ObjectInputStream in10 ; 
-    ObjectOutputStream out10 ; 
-    Socket clientSocket ; 
-    int numberofTimes ; 
+    ObjectInputStream in10 ; //Input of the ServerCoordinator 
+    ObjectOutputStream out10 ; //Output of the ServerCoordinator 
+    Socket clientSocket ; //The current socket made by the server 
+    int numberofTimes ; //Thread count this session 
     
     /** 
      * This constructor generates the ObjectInputStream and ObjectOutputStream 

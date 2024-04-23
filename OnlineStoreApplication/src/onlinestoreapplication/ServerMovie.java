@@ -27,9 +27,9 @@ public class ServerMovie {
      *                      runs into some sort of error 
      */
     public static void main(String[] args) { 
-        //Declarations 
+        /*Declarations for server port, and the number of threads made this session*/
         int serverPort = 6488 ; 
-        int i = 0 ; 
+        int i = 1 ; 
         
         try { 
             /*Server socket listens to the port identified. Once receiving a connection 
@@ -39,9 +39,9 @@ public class ServerMovie {
             while (true) { 
                 Socket clientSocket = listenSocket.accept() ; 
                 Connection2 c = new Connection2(clientSocket, i++) ; 
-                c.start() ; 
+                c.start() ; //Not starting in constructor 
             }
-        } catch (IOException e) {System.out.println("Listen :" + e.getMessage());}
+        } catch (IOException e){System.out.println("Listen :" + e.getMessage());}
     }
 }
 
@@ -56,10 +56,10 @@ public class ServerMovie {
  * @see Thread 
  */
 class Connection2 extends Thread { 
-    ObjectInputStream in21 ; 
-    ObjectOutputStream out21 ; 
-    Socket clientSocket ; 
-    int numberofTimes = 1 ; 
+    ObjectInputStream in21 ; //Input of the ServerCoordinator 
+    ObjectOutputStream out21 ; //Output of the ServerCoordinator 
+    Socket clientSocket ; //The current socket made by the server 
+    int numberofTimes ; //Thread count this session 
     
     /** 
      * This constructor generates the ObjectInputStream and ObjectOutputStream 
@@ -101,21 +101,19 @@ class Connection2 extends Thread {
     public void run() { 
         try {
             System.out.println("ServerBook received Book object number: " + numberofTimes) ; 
+            
+            /**Get the object input from the ServerCoordinator. Then invoke the 
+             executeTask() method which will set tax and totalBill. Then send 
+             that object back to the ServerCoordinator*/
             MovieOrder movie = (MovieOrder)in21.readObject() ; 
             movie.executeTask(); 
-            System.out.println("Computed the total bill for the current Book Order. Sending back to the client\n") ; 
-            out21.writeObject(movie) ;
+            
+            System.out.println("Computed the total bill for the current "
+                    + "Book Order. Sending back to the client\n") ; 
+            out21.writeObject(movie) ; //Send computer object back to SC
         }catch(EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch(IOException e) {System.out.println("readline:"+e.getMessage());
         }catch(ClassNotFoundException ex){System.out.println("Class not found: " + ex.getMessage()); 
         }finally{try{clientSocket.close();}catch(IOException e){/*close failed*/}}
     }
 }
-
-
-//System.out.println("TRACE: ") ; 
-
-//Using the executeTask() method which will then be set for the object. Meaning it can be sent back to the ServerCoordinator 
-//then back to the client to be rewritten 
-
-//Sending book object back to the ServerCoordinator 
