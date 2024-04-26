@@ -100,7 +100,7 @@ class Connection2 extends Thread {
     @Override
     public void run() { 
         try {
-            System.out.println("ServerBook received Book object number: " + numberofTimes) ; 
+            System.out.println("ServerMovie received Movie object number: " + numberofTimes) ; 
             
             /**Get the object input from the ServerCoordinator. Then invoke the 
              executeTask() method which will set tax and totalBill. Then send 
@@ -109,7 +109,7 @@ class Connection2 extends Thread {
             movie.executeTask(); 
             
             System.out.println("Computed the total bill for the current "
-                    + "Book Order. Sending back to the client\n") ; 
+                    + "Movie Order. Sending back to the client\n") ; 
             out21.writeObject(movie) ; //Send computer object back to SC
         }catch(EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch(IOException e) {System.out.println("readline:"+e.getMessage());
