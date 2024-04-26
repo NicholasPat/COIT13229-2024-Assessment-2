@@ -64,7 +64,7 @@ public class OrderClient {
         
         /*Text block for the main menu. Output as menu is invoked*/
         System.out.println("""
-                           PLEZSE PLACE YOUR ORDER BY SELECTING A NUMBER
+                           PLEASE PLACE YOUR ORDER BY SELECTING A NUMBER
                            ____________________________________________________
                            1. Purchase Book(s)
                            2. Purchase movie(s)
